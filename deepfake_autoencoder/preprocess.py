@@ -4,6 +4,25 @@ import numpy as np
 from skimage.transform import resize
 from skimage.io import imread
 
+def get_image_data(root_dir):
+
+    #get image data reference on HW4 preprocess.py and run.py
+    image_name_list = os.listdir(root_dir)
+
+    # Get image data, resize to 64X64X3
+    image_list  = np.zeros((len(image_name_list), 64, 64, 3))
+
+    for i in range(len(image_name_list)):
+        filename = image_name_list[i]
+        path = os.path.join(root_dir, filename)
+        image = imread(path)
+        if len(image.shape) == 2:
+            image = np.stack([image, image, image], axis=-1)
+        image = resize(image, (64, 64, 3))
+        image_list[i] = image
+    
+    print(np.shape(image_list))
+    return image_list
 
 #TODO preprocess data 
 class DeepfakeDataset(Dataset):
