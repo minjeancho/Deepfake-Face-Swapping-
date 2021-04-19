@@ -21,7 +21,7 @@ def get_image_data(root_dir):
         image = resize(image, (64, 64, 3))
         image_list[i] = image
     
-    print(np.shape(image_list))
+    #print(np.shape(image_list))
     return image_list
 
 #TODO preprocess data 
