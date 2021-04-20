@@ -5,6 +5,11 @@ from skimage.transform import resize
 from skimage.io import imread
 
 def get_image_data(root_dir):
+    # sample usage: 
+    # image_list_trump = get_image_data("/data/trump")
+    # np.shape(image_list_trump) = (376,64,64,3)
+    # image_list_cage = get_image_data("/data/cage")
+    # np.shape(image_list_cage) = (318,64,64,3)
 
     #get image data reference on HW4 preprocess.py and run.py
     image_name_list = os.listdir(root_dir)
