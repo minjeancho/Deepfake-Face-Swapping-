@@ -1,6 +1,9 @@
 from torch import nn
 import torch 
 
+from torch import nn
+import torch 
+
 class Encoder(nn.Module):
   def __init__(self):
     super (Encoder, self).__init__()
@@ -18,8 +21,8 @@ class Encoder(nn.Module):
         nn.BatchNorm2d(128),
         nn.LeakyReLU(0.2),
 
-        nn.Conv2d(128, 64, 3, 2, 1),
-        nn.BatchNorm2d(64),
+        nn.Conv2d(128, 128, 3, 2, 1),
+        nn.BatchNorm2d(128),
         nn.LeakyReLU(0.2)
     )
   def forward(self, x):
@@ -54,18 +57,21 @@ class Decoder(nn.Module):
 
 class SourceAE(nn.Module):
   def __init__(self):
-    super(AutoEncoder, self).__init__()
-    
+    super(SourceAE, self).__init__()
+
+    self.encoder = Encoder()
+    self.decoder = Decoder()
+
+  def forward(self, x):
     self.encoder = Encoder()
     self.decoder = Decoder()
 
   def forward(self, x):
     return self.decoder(self.encoder(x))
 
-
 class TargetAE(nn.Module):
   def __init__(self):
-    super(AutoEncoder, self).__init__()
+    super(TargetAE, self).__init__()
     
     self.encoder = Encoder()
     self.decoder = Decoder()

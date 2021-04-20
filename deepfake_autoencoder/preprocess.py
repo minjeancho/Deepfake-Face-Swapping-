@@ -5,19 +5,9 @@ from skimage.transform import resize
 from skimage.io import imread
 
 def get_image_data(root_dir):
-    # sample usage: 
-    # image_list_trump = get_image_data("/data/trump")
-    # np.shape(image_list_trump) = (376,64,64,3)
-    # image_list_cage = get_image_data("/data/cage")
-    # np.shape(image_list_cage) = (318,64,64,3)
-
-    #get image data reference on HW4 preprocess.py and run.py
     image_name_list = os.listdir(root_dir)
-
-    # Get image data, resize to 64X64X3
     image_list  = np.zeros((len(image_name_list), 64, 64, 3))
-
-    for i in range(len(image_name_list)):
+    for i in tqdm(range(len(image_name_list))):
         filename = image_name_list[i]
         path = os.path.join(root_dir, filename)
         image = imread(path)
@@ -25,56 +15,30 @@ def get_image_data(root_dir):
             image = np.stack([image, image, image], axis=-1)
         image = resize(image, (64, 64, 3))
         image_list[i] = image
-    
-    #print(np.shape(image_list))
+
+    # pytorch Conv2D expects num_channels first 
+    image_list = np.swapaxes(image_list, -1, 1)
     return image_list
 
-#TODO preprocess data 
-class DeepfakeDataset(Dataset):
-    def __init__(self,root_dir):
-        #output image should be of size 64x64x3 (height x width x num_channels)
+class SourceDataset(Dataset):
+  def __init__(self, root_dir):
+    self.source_imgs = get_image_data(root_dir)
+      
+  def __len__(self):
+    return len(self.source_imgs)
 
-        #Please give the dir for incoming data because train and test data are usually in different directories
-        #eg: for train, the root_dir should be /xxxx/train
-        self.root_dir = root_dir
+  def __getitem__(self, idx):
+    item = {"source_img": self.source_imgs[idx]}
+    return item 
 
-        #get image data reference on HW4 preprocess.py and run.py
-        image_name_list = os.listdir(self.root_dir)
+class TargetDataset(Dataset):
+  def __init__(self, root_dir):
+    self.target_imgs = get_image_data(root_dir)
+      
+  def __len__(self):
+    return len(self.target_imgs)
 
-        # Get image data, resize to 64X64X3
-        image_list  = np.zeros(
-            (len(image_name_list), 64, 64, 3))
-        label_list = image_name_list
+  def __getitem__(self, idx):
+    item = {"target_img": self.target_imgs[idx]}
+    return item 
 
-        for i in range(len(image_name_list)):
-            filename = image_name_list[i]
-            path = os.path.join(self.root_dir, filename)
-            image = imread(path)
-            if len(image.shape) == 2:
-                image = np.stack([image, image, image], axis=-1)
-            image = resize(image, (64, 64, 3))
-            image_list[i] = image
-
-        self.image_list = image_list
-        # Currently set label = image_name because I do not know what will be the actual image name
-        # This will be  modified after determined the data we use
-        self.label_list = label_list
-
-        # I assume you do not pass transform information, so I did not set transform attribute here
-        #self.transform = transform
-        
-    def __len__(self):
-
-        return len(self.image_list)
-        
-    
-    def __getitem__(self, idx):
-        img = self.image_list[idx]
-        label = self.label_list[idx]
-
-        sample = {'image':img,'label':label}
-
-        return sample
-
-
-    
